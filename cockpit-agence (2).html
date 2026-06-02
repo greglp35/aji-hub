@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cockpit Agence — AJI Matériaux</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+:root {
+  --bg: #0f1014;
+  --surface: #16181e;
+  --surface2: #1e2028;
+  --border: #2a2d38;
+  --border2: #363a48;
+  --text: #d4d8e8;
+  --text2: #7a8099;
+  --text3: #4a5070;
+
+  --jaune: #f5d10d;
+  --jaune2: #c4a80a;
+  --jaune-dim: rgba(245,209,13,0.12);
+  --jaune-glow: rgba(245,209,13,0.06);
+
+  --rouge: #e84040;
+  --rouge-dim: rgba(232,64,64,0.12);
+  --orange: #f0893a;
+  --orange-dim: rgba(240,137,58,0.12);
+  --vert: #3dd68c;
+  --vert-dim: rgba(61,214,140,0.10);
+  --bleu: #4d9de0;
+  --bleu-dim: rgba(77,157,224,0.10);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px;
+  min-height: 100vh;
+}
+
+/* ── TOP BAR ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  height: 52px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-logo {
+  width: 28px;
+  height: 28px;
+  background: var(--jaune);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 600;
+  font-size: 13px;
+  color: #000;
+  letter-spacing: -0.5px;
+}
+
+.brand-name {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text);
+  letter-spacing: 0.5px;
+}
+
+.brand-sep { color: var(--text3); margin: 0 2px; }
+
+.brand-agence {
+  font-size: 13px;
+  color: var(--jaune);
+  font-weight: 500;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.status-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--vert);
+  box-shadow: 0 0 6px var(--vert);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.last-update {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--text3);
+}
+
+.btn-refresh {
+  padding: 5px 12px;
+  background: var(--jaune-dim);
+  border: 1px solid var(--jaune2);
+  border-radius: 4px;
+  color: var(--jaune);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all .15s;
+  letter-spacing: 0.5px;
+}
+.btn-refresh:hover { background: rgba(245,209,13,0.2); }
+
+.btn-edit-toggle {
+  padding: 5px 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  color: var(--text2);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn-edit-toggle:hover { border-color: var(--jaune2); color: var(--jaune); }
+.btn-edit-toggle.active { background: var(--jaune-dim); border-color: var(--jaune2); color: var(--jaune); }
+
+/* ── LOAD BAR ── */
+#loadBar {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px;
+  color: var(--text2);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+}
+
+.spinner {
+  width: 18px; height: 18px;
+  border: 2px solid var(--border2);
+  border-top-color: var(--jaune);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── ERROR BAR ── */
+#errorBar {
+  display: none;
+  margin: 16px 24px 0;
+  padding: 12px 16px;
+  background: var(--rouge-dim);
+  border: 1px solid var(--rouge);
+  border-radius: 6px;
+  color: var(--rouge);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+}
+
+/* ── FILE PICKER ── */
+#filePicker {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 60px 24px;
+  text-align: center;
+}
+
+.file-drop {
+  border: 2px dashed var(--border2);
+  border-radius: 10px;
+  padding: 40px 60px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.file-drop:hover { border-color: var(--jaune2); background: var(--jaune-glow); }
+.file-drop p { color: var(--text2); font-size: 13px; margin-top: 8px; }
+.file-drop-icon { font-size: 32px; }
+.file-btn {
+  margin-top: 8px;
+  padding: 10px 24px;
+  background: var(--jaune);
+  border: none;
+  border-radius: 5px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: #000;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: opacity .15s;
+}
+.file-btn:hover { opacity: 0.85; }
+#fileInput { display: none; }
+.file-hint { font-size: 12px; color: var(--text3); font-family: 'IBM Plex Mono', monospace; }
+
+/* ── MAIN LAYOUT ── */
+#dashboard { display: none; }
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px 24px;
+}
+
+.meta-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.meta-date {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--text3);
+}
+
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.kpi-icon {
+  width: 36px; height: 36px;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.kpi-val {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.kpi-label {
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ── GRID SECTIONS ── */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text2);
+}
+
+.section-title .icon { font-size: 14px; }
+
+.section-count {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: var(--surface2);
+  color: var(--text3);
+  border: 1px solid var(--border);
+}
+
+.section-body { padding: 8px 0; }
+
+/* ── ROWS ── */
+.row-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--border);
+  transition: background .1s;
+}
+.row-item:last-child { border-bottom: none; }
+.row-item:hover { background: rgba(255,255,255,0.02); }
+
+.row-badge {
+  flex-shrink: 0;
+  margin-top: 2px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+}
+
+.row-main { flex: 1; min-width: 0; }
+
+.row-text {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.row-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  padding: 1px 7px;
+  border-radius: 3px;
+  letter-spacing: 0.3px;
+}
+
+.tag-critique { background: var(--rouge-dim); color: var(--rouge); border: 1px solid rgba(232,64,64,0.25); }
+.tag-warning  { background: var(--orange-dim); color: var(--orange); border: 1px solid rgba(240,137,58,0.25); }
+.tag-ok       { background: var(--vert-dim); color: var(--vert); border: 1px solid rgba(61,214,140,0.2); }
+.tag-info     { background: var(--bleu-dim); color: var(--bleu); border: 1px solid rgba(77,157,224,0.2); }
+.tag-grey     { background: var(--surface2); color: var(--text3); border: 1px solid var(--border); }
+
+.tag-haute    { background: var(--rouge-dim); color: var(--rouge); border: 1px solid rgba(232,64,64,0.25); }
+.tag-normale  { background: var(--orange-dim); color: var(--orange); border: 1px solid rgba(240,137,58,0.2); }
+.tag-basse    { background: var(--surface2); color: var(--text3); border: 1px solid var(--border); }
+
+.tag-livre    { background: var(--vert-dim); color: var(--vert); border: 1px solid rgba(61,214,140,0.2); }
+.tag-en_route { background: var(--bleu-dim); color: var(--bleu); border: 1px solid rgba(77,157,224,0.2); }
+.tag-planifie { background: var(--surface2); color: var(--text3); border: 1px solid var(--border); }
+.tag-en_cours { background: var(--orange-dim); color: var(--orange); border: 1px solid rgba(240,137,58,0.2); }
+.tag-ouvert   { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
+.tag-fait     { background: var(--vert-dim); color: var(--vert); border: 1px solid rgba(61,214,140,0.2); }
+
+.row-resp {
+  font-size: 11px;
+  color: var(--text3);
+}
+
+.row-deadline {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: var(--text3);
+}
+
+.row-deadline.late { color: var(--rouge); }
+
+.done-strike .row-text { text-decoration: line-through; opacity: 0.4; }
+
+/* ── STOCK ROW ── */
+.stock-row {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.stock-row:last-child { border-bottom: none; }
+.stock-row:hover { background: rgba(255,255,255,0.02); }
+
+.stock-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 6px;
+}
+
+.stock-name { font-size: 13px; color: var(--text); }
+
+.stock-nums {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--text3);
+  white-space: nowrap;
+  margin-left: 8px;
+}
+
+.stock-bar-bg {
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.stock-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width .4s ease;
+}
+
+/* ── EDIT PANEL ── */
+#editPanel {
+  display: none;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 20px 24px;
+  margin-top: 16px;
+}
+
+#editPanel.visible { display: block; }
+
+.edit-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+}
+
+.edit-tab {
+  padding: 6px 14px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  background: none;
+  color: var(--text3);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all .15s;
+  letter-spacing: 0.5px;
+}
+.edit-tab:hover { color: var(--text2); border-color: var(--border2); }
+.edit-tab.active { background: var(--jaune-dim); border-color: var(--jaune2); color: var(--jaune); }
+
+.edit-form { display: none; }
+.edit-form.visible { display: block; }
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.form-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-input, .form-select {
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  padding: 7px 10px;
+  color: var(--text);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  transition: border-color .15s;
+  outline: none;
+}
+.form-input:focus, .form-select:focus { border-color: var(--jaune2); }
+.form-select option { background: var(--surface2); }
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding-top: 4px;
+}
+
+.btn-add {
+  padding: 8px 18px;
+  background: var(--jaune);
+  border: none;
+  border-radius: 4px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: #000;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: opacity .15s;
+}
+.btn-add:hover { opacity: 0.85; }
+
+.btn-clear {
+  padding: 8px 14px;
+  background: none;
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  color: var(--text3);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn-clear:hover { color: var(--text2); border-color: var(--border2); }
+
+.btn-export {
+  margin-left: auto;
+  padding: 8px 14px;
+  background: none;
+  border: 1px solid var(--vert);
+  border-radius: 4px;
+  color: var(--vert);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn-export:hover { background: var(--vert-dim); }
+
+/* ── INLINE DELETE ── */
+.btn-del {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--text3);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px;
+  transition: color .1s;
+  opacity: 0;
+}
+.row-item:hover .btn-del,
+.stock-row:hover .btn-del { opacity: 1; }
+.btn-del:hover { color: var(--rouge); }
+
+/* ── EMPTY STATE ── */
+.empty {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--text3);
+  font-size: 12px;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 500px) {
+  .kpi-row { grid-template-columns: 1fr 1fr; }
+  .topbar { padding: 0 12px; }
+  .container { padding: 12px; }
+  .brand-name { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-logo">AJI</div>
+    <span class="brand-name">COCKPIT<span class="brand-sep"> / </span></span>
+    <span class="brand-agence" id="brandAgence">—</span>
+  </div>
+  <div class="topbar-right">
+    <div class="status-dot" id="statusDot" title="Données chargées"></div>
+    <span class="last-update" id="lastUpdate">—</span>
+    <button class="btn-edit-toggle" id="btnEditToggle" onclick="toggleEdit()">✏ ÉDITER</button>
+    <button class="btn-refresh" onclick="reloadData()">↻ RAFRAÎCHIR</button>
+  </div>
+</div>
+
+<!-- FILE PICKER -->
+<div id="filePicker" style="display:flex;">
+  <div>
+    <h2 style="color:var(--text);font-size:18px;margin-bottom:6px;font-weight:600;">Cockpit Agence AJI</h2>
+    <p style="color:var(--text3);font-size:13px;margin-bottom:24px;">Charger le fichier JSON de l'agence</p>
+    <div class="file-drop" onclick="document.getElementById('fileInput').click()">
+      <div class="file-drop-icon">📂</div>
+      <p>Glisser le fichier JSON ici<br>ou cliquer pour parcourir</p>
+    </div>
+    <input type="file" id="fileInput" accept=".json" onchange="loadFile(event)">
+    <p class="file-hint" style="margin-top:16px;">Ex : cockpit-breal.json</p>
+  </div>
+</div>
+
+<!-- LOAD BAR -->
+<div id="loadBar">
+  <div class="spinner"></div>
+  Chargement…
+</div>
+
+<!-- ERROR BAR -->
+<div id="errorBar"></div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="container">
+
+    <!-- META -->
+    <div class="meta-bar">
+      <span class="meta-date" id="metaDate">—</span>
+      <span class="meta-date" id="metaAgence" style="color:var(--jaune);">—</span>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--jaune-dim);">🎯</div>
+        <div>
+          <div class="kpi-val" id="kpiBrief" style="color:var(--jaune);">—</div>
+          <div class="kpi-label">Priorités actives</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--bleu-dim);">📣</div>
+        <div>
+          <div class="kpi-val" id="kpiActions" style="color:var(--bleu);">—</div>
+          <div class="kpi-label">Actions en cours</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--rouge-dim);">⚠️</div>
+        <div>
+          <div class="kpi-val" id="kpiAlertes" style="color:var(--rouge);">—</div>
+          <div class="kpi-label">Alertes critiques</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--vert-dim);">🚚</div>
+        <div>
+          <div class="kpi-val" id="kpiLivraisons" style="color:var(--vert);">—</div>
+          <div class="kpi-label">Livraisons livrées</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GRID -->
+    <div class="grid-2">
+
+      <!-- BRIEF -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title"><span class="icon">🎯</span> Brief & Priorités</div>
+          <span class="section-count" id="countBrief">0</span>
+        </div>
+        <div class="section-body" id="listBrief"></div>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title"><span class="icon">📣</span> Actions Commerciales</div>
+          <span class="section-count" id="countActions">0</span>
+        </div>
+        <div class="section-body" id="listActions"></div>
+      </div>
+
+      <!-- STOCK -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title"><span class="icon">⚠️</span> Alertes Stock</div>
+          <span class="section-count" id="countStock">0</span>
+        </div>
+        <div class="section-body" id="listStock"></div>
+      </div>
+
+      <!-- LIVRAISONS -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title"><span class="icon">🚚</span> Livraisons</div>
+          <span class="section-count" id="countLivraisons">0</span>
+        </div>
+        <div class="section-body" id="listLivraisons"></div>
+      </div>
+
+    </div><!-- /grid -->
+
+    <!-- EDIT PANEL -->
+    <div id="editPanel">
+      <div class="edit-tabs">
+        <button class="edit-tab active" onclick="switchTab('brief')">🎯 BRIEF</button>
+        <button class="edit-tab" onclick="switchTab('actions')">📣 ACTIONS</button>
+        <button class="edit-tab" onclick="switchTab('stock')">⚠️ STOCK</button>
+        <button class="edit-tab" onclick="switchTab('livraisons')">🚚 LIVRAISONS</button>
+      </div>
+
+      <!-- FORM BRIEF -->
+      <div class="edit-form visible" id="form-brief">
+        <div class="form-grid">
+          <div class="form-field" style="grid-column:1/-1">
+            <label class="form-label">Texte *</label>
+            <input class="form-input" id="b-texte" placeholder="Tâche ou priorité du jour…">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Responsable</label>
+            <input class="form-input" id="b-resp" placeholder="Ex: Maxime">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Priorité</label>
+            <select class="form-select" id="b-prio">
+              <option value="haute">Haute</option>
+              <option value="normale" selected>Normale</option>
+              <option value="basse">Basse</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Statut</label>
+            <select class="form-select" id="b-statut">
+              <option value="ouvert" selected>Ouvert</option>
+              <option value="en_cours">En cours</option>
+              <option value="fait">Fait</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-add" onclick="addItem('brief')">+ AJOUTER</button>
+          <button class="btn-clear" onclick="clearForm('brief')">Effacer</button>
+          <button class="btn-export" onclick="exportJSON()">⬇ EXPORTER JSON</button>
+        </div>
+      </div>
+
+      <!-- FORM ACTIONS -->
+      <div class="edit-form" id="form-actions">
+        <div class="form-grid">
+          <div class="form-field">
+            <label class="form-label">Client *</label>
+            <input class="form-input" id="a-client" placeholder="Nom client ou entreprise">
+          </div>
+          <div class="form-field" style="grid-column:span 2">
+            <label class="form-label">Action *</label>
+            <input class="form-input" id="a-action" placeholder="Description de l'action…">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Responsable</label>
+            <input class="form-input" id="a-resp" placeholder="Ex: Maxime">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Deadline</label>
+            <input class="form-input" type="date" id="a-deadline">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Statut</label>
+            <select class="form-select" id="a-statut">
+              <option value="ouvert" selected>Ouvert</option>
+              <option value="en_cours">En cours</option>
+              <option value="fait">Fait</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-add" onclick="addItem('actions')">+ AJOUTER</button>
+          <button class="btn-clear" onclick="clearForm('actions')">Effacer</button>
+          <button class="btn-export" onclick="exportJSON()">⬇ EXPORTER JSON</button>
+        </div>
+      </div>
+
+      <!-- FORM STOCK -->
+      <div class="edit-form" id="form-stock">
+        <div class="form-grid">
+          <div class="form-field" style="grid-column:span 2">
+            <label class="form-label">Article *</label>
+            <input class="form-input" id="s-article" placeholder="Désignation + réf. ERP">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Niveau actuel *</label>
+            <input class="form-input" type="number" id="s-niveau" placeholder="Ex: 48">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Seuil mini</label>
+            <input class="form-input" type="number" id="s-seuil" placeholder="Ex: 100">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Unité</label>
+            <input class="form-input" id="s-unite" placeholder="plaques, sacs, m²…">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Urgence</label>
+            <select class="form-select" id="s-urgence">
+              <option value="critique">Critique</option>
+              <option value="warning" selected>Warning</option>
+              <option value="ok">OK</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-add" onclick="addItem('stock')">+ AJOUTER</button>
+          <button class="btn-clear" onclick="clearForm('stock')">Effacer</button>
+          <button class="btn-export" onclick="exportJSON()">⬇ EXPORTER JSON</button>
+        </div>
+      </div>
+
+      <!-- FORM LIVRAISONS -->
+      <div class="edit-form" id="form-livraisons">
+        <div class="form-grid">
+          <div class="form-field">
+            <label class="form-label">Tournée</label>
+            <input class="form-input" id="l-tournee" placeholder="Ex: T1 — Matin">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Chauffeur</label>
+            <input class="form-input" id="l-chauffeur" placeholder="Ex: Patrick">
+          </div>
+          <div class="form-field" style="grid-column:span 2">
+            <label class="form-label">Client *</label>
+            <input class="form-input" id="l-client" placeholder="Nom + commune">
+          </div>
+          <div class="form-field" style="grid-column:span 2">
+            <label class="form-label">Contenu</label>
+            <input class="form-input" id="l-contenu" placeholder="Nature marchandise…">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Heure prévue</label>
+            <input class="form-input" type="time" id="l-heure">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Statut</label>
+            <select class="form-select" id="l-statut">
+              <option value="planifie" selected>Planifié</option>
+              <option value="en_route">En route</option>
+              <option value="livre">Livré</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-add" onclick="addItem('livraisons')">+ AJOUTER</button>
+          <button class="btn-clear" onclick="clearForm('livraisons')">Effacer</button>
+          <button class="btn-export" onclick="exportJSON()">⬇ EXPORTER JSON</button>
+        </div>
+      </div>
+
+    </div><!-- /editPanel -->
+
+  </div><!-- /container -->
+</div><!-- /dashboard -->
+
+<script>
+// ═══════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════
+let DATA = null;
+let editMode = false;
+let currentTab = 'brief';
+const TODAY = new Date().toISOString().split('T')[0];
+
+// ═══════════════════════════════════════════
+//  FILE LOAD
+// ═══════════════════════════════════════════
+function loadFile(evt) {
+  const file = evt.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      DATA = JSON.parse(e.target.result);
+      showDashboard();
+    } catch(err) {
+      showError('JSON invalide : ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+// Support drag & drop sur la zone
+document.addEventListener('DOMContentLoaded', () => {
+  const drop = document.querySelector('.file-drop');
+  if (!drop) return;
+  drop.addEventListener('dragover', e => { e.preventDefault(); drop.style.borderColor = 'var(--jaune)'; });
+  drop.addEventListener('dragleave', () => { drop.style.borderColor = ''; });
+  drop.addEventListener('drop', e => {
+    e.preventDefault();
+    drop.style.borderColor = '';
+    const f = e.dataTransfer.files[0];
+    if (!f) return;
+    const r = new FileReader();
+    r.onload = ev => {
+      try { DATA = JSON.parse(ev.target.result); showDashboard(); }
+      catch(err) { showError('JSON invalide : ' + err.message); }
+    };
+    r.readAsText(f);
+  });
+
+  // Auto-refresh toutes les 60s si données chargées
+  setInterval(() => { if (DATA) renderAll(); }, 60000);
+});
+
+function reloadData() {
+  if (!DATA) { document.getElementById('fileInput').click(); return; }
+  renderAll();
+}
+
+// ═══════════════════════════════════════════
+//  DISPLAY
+// ═══════════════════════════════════════════
+function showDashboard() {
+  document.getElementById('filePicker').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  renderAll();
+}
+
+function showError(msg) {
+  const bar = document.getElementById('errorBar');
+  bar.textContent = '⚠ ' + msg;
+  bar.style.display = 'block';
+  setTimeout(() => bar.style.display = 'none', 5000);
+}
+
+function renderAll() {
+  if (!DATA) return;
+
+  // Meta
+  document.getElementById('brandAgence').textContent = DATA.agence || '—';
+  document.getElementById('metaAgence').textContent = DATA.agence || '';
+  const d = new Date(DATA.mise_a_jour);
+  const dateStr = isNaN(d) ? DATA.mise_a_jour : d.toLocaleDateString('fr-FR', {weekday:'long',day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  document.getElementById('metaDate').textContent = 'Mis à jour : ' + dateStr;
+  document.getElementById('lastUpdate').textContent = isNaN(d) ? '—' : d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+
+  renderBrief();
+  renderActions();
+  renderStock();
+  renderLivraisons();
+  renderKPIs();
+}
+
+// ── BRIEF ──
+function renderBrief() {
+  const list = document.getElementById('listBrief');
+  const items = (DATA.brief_priorites || []);
+  document.getElementById('countBrief').textContent = items.length;
+  if (!items.length) { list.innerHTML = '<div class="empty">Aucune priorité</div>'; return; }
+  list.innerHTML = items.map((it, i) => `
+    <div class="row-item${it.statut==='fait' ? ' done-strike' : ''}">
+      <div class="row-badge" style="background:${badgeColor(it.priorite,'prio')}; margin-top:5px;"></div>
+      <div class="row-main">
+        <div class="row-text" title="${esc(it.texte)}">${esc(it.texte)}</div>
+        <div class="row-meta">
+          <span class="tag tag-${it.priorite}">${it.priorite.toUpperCase()}</span>
+          <span class="tag tag-${it.statut}">${labelStatut(it.statut)}</span>
+          ${it.responsable ? `<span class="row-resp">${esc(it.responsable)}</span>` : ''}
+        </div>
+      </div>
+      ${editMode ? `<button class="btn-del" onclick="deleteItem('brief',${i})" title="Supprimer">✕</button>` : ''}
+    </div>`).join('');
+}
+
+// ── ACTIONS ──
+function renderActions() {
+  const list = document.getElementById('listActions');
+  const items = (DATA.actions_commerciales || []);
+  document.getElementById('countActions').textContent = items.length;
+  if (!items.length) { list.innerHTML = '<div class="empty">Aucune action</div>'; return; }
+  list.innerHTML = items.map((it, i) => {
+    const late = it.deadline && it.deadline < TODAY && it.statut !== 'fait';
+    return `
+    <div class="row-item${it.statut==='fait' ? ' done-strike' : ''}">
+      <div class="row-badge" style="background:${badgeColor(it.statut,'statut')}; margin-top:5px;"></div>
+      <div class="row-main">
+        <div class="row-text" title="${esc(it.action)}"><strong style="color:var(--text2)">${esc(it.client)}</strong> — ${esc(it.action)}</div>
+        <div class="row-meta">
+          <span class="tag tag-${it.statut}">${labelStatut(it.statut)}</span>
+          ${it.responsable ? `<span class="row-resp">${esc(it.responsable)}</span>` : ''}
+          ${it.deadline ? `<span class="row-deadline${late?' late':''}">${late?'⚠ ':''}${it.deadline}</span>` : ''}
+        </div>
+      </div>
+      ${editMode ? `<button class="btn-del" onclick="deleteItem('actions',${i})" title="Supprimer">✕</button>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ── STOCK ──
+function renderStock() {
+  const list = document.getElementById('listStock');
+  const items = (DATA.alertes_stock || []);
+  document.getElementById('countStock').textContent = items.length;
+  if (!items.length) { list.innerHTML = '<div class="empty">Aucune alerte</div>'; return; }
+  list.innerHTML = items.map((it, i) => {
+    const pct = it.seuil_mini > 0 ? Math.min(100, Math.round(it.niveau / it.seuil_mini * 100)) : 100;
+    const barColor = it.urgence === 'critique' ? 'var(--rouge)' : it.urgence === 'warning' ? 'var(--orange)' : 'var(--vert)';
+    return `
+    <div class="stock-row">
+      <div class="stock-top">
+        <span class="stock-name">${esc(it.article)}</span>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:8px">
+          <span class="stock-nums">${it.niveau} / ${it.seuil_mini} ${it.unite||''}</span>
+          <span class="tag tag-${it.urgence}">${it.urgence.toUpperCase()}</span>
+          ${editMode ? `<button class="btn-del" onclick="deleteItem('stock',${i})" title="Supprimer" style="opacity:1">✕</button>` : ''}
+        </div>
+      </div>
+      <div class="stock-bar-bg">
+        <div class="stock-bar-fill" style="width:${pct}%;background:${barColor};"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── LIVRAISONS ──
+function renderLivraisons() {
+  const list = document.getElementById('listLivraisons');
+  const items = (DATA.livraisons || []);
+  document.getElementById('countLivraisons').textContent = items.length;
+  if (!items.length) { list.innerHTML = '<div class="empty">Aucune livraison</div>'; return; }
+  // Grouper par tournée
+  const grouped = {};
+  items.forEach((it, i) => {
+    const t = it.tournee || 'Sans tournée';
+    if (!grouped[t]) grouped[t] = [];
+    grouped[t].push({...it, _i: i});
+  });
+  list.innerHTML = Object.entries(grouped).map(([tournee, arr]) => `
+    <div style="padding:6px 16px 2px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;">${esc(tournee)} · ${arr[0]?.chauffeur||''}</div>
+    ${arr.map(it => `
+    <div class="row-item">
+      <div class="row-badge" style="background:${badgeColor(it.statut,'liv')}; margin-top:5px;"></div>
+      <div class="row-main">
+        <div class="row-text">${esc(it.client)}</div>
+        <div class="row-meta">
+          <span class="tag tag-${it.statut}">${labelStatut(it.statut)}</span>
+          ${it.heure_prevue ? `<span class="row-resp">${esc(it.heure_prevue)}</span>` : ''}
+          ${it.contenu ? `<span class="row-resp" style="font-size:10px;">${esc(it.contenu)}</span>` : ''}
+        </div>
+      </div>
+      ${editMode ? `<button class="btn-del" onclick="deleteItem('livraisons',${it._i})" title="Supprimer">✕</button>` : ''}
+    </div>`).join('')}
+  `).join('');
+}
+
+// ── KPIs ──
+function renderKPIs() {
+  const b = (DATA.brief_priorites||[]).filter(x=>x.statut!=='fait').length;
+  const a = (DATA.actions_commerciales||[]).filter(x=>x.statut==='en_cours'||x.statut==='ouvert').length;
+  const s = (DATA.alertes_stock||[]).filter(x=>x.urgence==='critique').length;
+  const l = (DATA.livraisons||[]).filter(x=>x.statut==='livre').length;
+  document.getElementById('kpiBrief').textContent = b;
+  document.getElementById('kpiActions').textContent = a;
+  document.getElementById('kpiAlertes').textContent = s;
+  document.getElementById('kpiLivraisons').textContent = l + '/' + (DATA.livraisons||[]).length;
+}
+
+// ═══════════════════════════════════════════
+//  EDIT MODE
+// ═══════════════════════════════════════════
+function toggleEdit() {
+  editMode = !editMode;
+  const btn = document.getElementById('btnEditToggle');
+  btn.textContent = editMode ? '👁 LECTURE' : '✏ ÉDITER';
+  btn.classList.toggle('active', editMode);
+  const panel = document.getElementById('editPanel');
+  panel.classList.toggle('visible', editMode);
+  renderAll();
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.edit-tab').forEach((b,i) => {
+    b.classList.toggle('active', ['brief','actions','stock','livraisons'][i] === tab);
+  });
+  document.querySelectorAll('.edit-form').forEach(f => f.classList.remove('visible'));
+  document.getElementById('form-' + tab).classList.add('visible');
+}
+
+function addItem(type) {
+  if (!DATA) return;
+  let item;
+  const nextId = () => Date.now();
+
+  if (type === 'brief') {
+    const t = document.getElementById('b-texte').value.trim();
+    if (!t) { showError('Le texte est obligatoire.'); return; }
+    item = { id: nextId(), texte: t, responsable: document.getElementById('b-resp').value.trim(), priorite: document.getElementById('b-prio').value, statut: document.getElementById('b-statut').value };
+    DATA.brief_priorites = DATA.brief_priorites || [];
+    DATA.brief_priorites.unshift(item);
+    clearForm('brief');
+  } else if (type === 'actions') {
+    const c = document.getElementById('a-client').value.trim();
+    const a = document.getElementById('a-action').value.trim();
+    if (!c || !a) { showError('Client et action obligatoires.'); return; }
+    item = { id: nextId(), client: c, action: a, responsable: document.getElementById('a-resp').value.trim(), deadline: document.getElementById('a-deadline').value, statut: document.getElementById('a-statut').value };
+    DATA.actions_commerciales = DATA.actions_commerciales || [];
+    DATA.actions_commerciales.unshift(item);
+    clearForm('actions');
+  } else if (type === 'stock') {
+    const art = document.getElementById('s-article').value.trim();
+    const niv = parseInt(document.getElementById('s-niveau').value);
+    if (!art || isNaN(niv)) { showError('Article et niveau obligatoires.'); return; }
+    item = { id: nextId(), article: art, niveau: niv, seuil_mini: parseInt(document.getElementById('s-seuil').value)||0, unite: document.getElementById('s-unite').value.trim(), urgence: document.getElementById('s-urgence').value };
+    DATA.alertes_stock = DATA.alertes_stock || [];
+    DATA.alertes_stock.unshift(item);
+    clearForm('stock');
+  } else if (type === 'livraisons') {
+    const cl = document.getElementById('l-client').value.trim();
+    if (!cl) { showError('Client obligatoire.'); return; }
+    item = { id: nextId(), tournee: document.getElementById('l-tournee').value.trim(), chauffeur: document.getElementById('l-chauffeur').value.trim(), client: cl, contenu: document.getElementById('l-contenu').value.trim(), heure_prevue: document.getElementById('l-heure').value, statut: document.getElementById('l-statut').value };
+    DATA.livraisons = DATA.livraisons || [];
+    DATA.livraisons.push(item);
+    clearForm('livraisons');
+  }
+
+  DATA.mise_a_jour = new Date().toISOString();
+  renderAll();
+}
+
+function deleteItem(type, index) {
+  if (!DATA) return;
+  const map = { brief: 'brief_priorites', actions: 'actions_commerciales', stock: 'alertes_stock', livraisons: 'livraisons' };
+  DATA[map[type]].splice(index, 1);
+  DATA.mise_a_jour = new Date().toISOString();
+  renderAll();
+}
+
+function clearForm(type) {
+  const ids = { brief: ['b-texte','b-resp'], actions: ['a-client','a-action','a-resp','a-deadline'], stock: ['s-article','s-niveau','s-seuil','s-unite'], livraisons: ['l-tournee','l-chauffeur','l-client','l-contenu','l-heure'] };
+  (ids[type]||[]).forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+}
+
+// ═══════════════════════════════════════════
+//  EXPORT JSON
+// ═══════════════════════════════════════════
+function exportJSON() {
+  if (!DATA) return;
+  DATA.mise_a_jour = new Date().toISOString();
+  const blob = new Blob([JSON.stringify(DATA, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'cockpit-' + (DATA.agence||'agence').toLowerCase().replace(/[^a-z0-9]/g,'-') + '.json';
+  a.click();
+}
+
+// ═══════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function badgeColor(val, ctx) {
+  if (ctx === 'prio') {
+    return val==='haute' ? 'var(--rouge)' : val==='normale' ? 'var(--orange)' : 'var(--text3)';
+  }
+  if (ctx === 'statut') {
+    return val==='fait' ? 'var(--vert)' : val==='en_cours' ? 'var(--orange)' : 'var(--text3)';
+  }
+  if (ctx === 'liv') {
+    return val==='livre' ? 'var(--vert)' : val==='en_route' ? 'var(--bleu)' : 'var(--text3)';
+  }
+  return 'var(--text3)';
+}
+
+function labelStatut(s) {
+  const map = { ouvert:'OUVERT', en_cours:'EN COURS', fait:'FAIT', planifie:'PLANIFIÉ', en_route:'EN ROUTE', livre:'LIVRÉ' };
+  return map[s] || s.toUpperCase();
+}
+
+// ═══════════════════════════════════════════
+//  AUTOSAVE — File System Access API
+// ═══════════════════════════════════════════
+let fsFileHandle = null;
+let autosaveTimer = null;
+let pendingSave   = false;
+
+// Indicateur visuel dans la topbar
+function injectSaveIndicator() {
+  if (document.getElementById('save-indicator')) return;
+  const el = document.createElement('div');
+  el.id = 'save-indicator';
+  el.innerHTML = `
+    <span id="save-icon">💾</span>
+    <span id="save-label">—</span>
+  `;
+  el.style.cssText = `
+    display:flex;align-items:center;gap:6px;
+    font-family:'IBM Plex Mono',monospace;font-size:11px;
+    color:var(--text3);cursor:pointer;
+    padding:4px 10px;border:1px solid var(--border);border-radius:4px;
+    background:var(--surface2);transition:border-color .15s;
+  `;
+  el.title = 'Cliquer pour lier un fichier JSON et activer l\'autosave';
+  el.onclick = linkFile;
+  document.querySelector('.topbar-right').prepend(el);
+}
+
+function setSaveStatus(status) {
+  const icon  = document.getElementById('save-icon');
+  const label = document.getElementById('save-label');
+  if (!icon) return;
+  const states = {
+    idle:    { i:'💾', t:'Lier un fichier', c:'var(--text3)' },
+    linked:  { i:'✓',  t:'Fichier lié',     c:'var(--vert)'  },
+    saving:  { i:'⟳',  t:'Sauvegarde…',     c:'var(--jaune)' },
+    saved:   { i:'✓',  t:'Sauvegardé',      c:'var(--vert)'  },
+    error:   { i:'✕',  t:'Erreur save',     c:'var(--rouge)' },
+  };
+  const s = states[status] || states.idle;
+  icon.textContent  = s.i;
+  label.textContent = s.t;
+  label.style.color = s.c;
+  icon.style.color  = s.c;
+}
+
+async function linkFile() {
+  if (!window.showSaveFilePicker) {
+    alert('File System Access API non supportée.\nUtilise Chrome ou Edge.');
+    return;
+  }
+  try {
+    fsFileHandle = await window.showSaveFilePicker({
+      suggestedName: 'cockpit-' + (DATA?.agence || 'agence').toLowerCase().replace(/[^a-z0-9]/g,'-') + '.json',
+      types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }],
+    });
+    setSaveStatus('linked');
+    toast('Fichier lié — autosave activé ✓');
+    // Sauvegarde immédiate
+    if (DATA) scheduleSave();
+  } catch(e) {
+    if (e.name !== 'AbortError') setSaveStatus('error');
+  }
+}
+
+function scheduleSave() {
+  if (!fsFileHandle || !DATA) return;
+  pendingSave = true;
+  clearTimeout(autosaveTimer);
+  autosaveTimer = setTimeout(() => doSave(), 1500); // 1.5s après la dernière modif
+}
+
+async function doSave() {
+  if (!fsFileHandle || !DATA || !pendingSave) return;
+  pendingSave = false;
+  setSaveStatus('saving');
+  try {
+    DATA.mise_a_jour = new Date().toISOString();
+    const writable = await fsFileHandle.createWritable();
+    await writable.write(JSON.stringify(DATA, null, 2));
+    await writable.close();
+    setSaveStatus('saved');
+    // Mettre à jour l'heure affichée
+    document.getElementById('lastUpdate').textContent =
+      new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    setTimeout(() => setSaveStatus('linked'), 2000);
+  } catch(e) {
+    setSaveStatus('error');
+    console.error('Autosave error:', e);
+  }
+}
+
+// Patch : déclencher scheduleSave après chaque mutation de DATA
+const _origAddItem    = addItem;
+const _origDeleteItem = deleteItem;
+window.addItem = function(...args) { _origAddItem(...args); scheduleSave(); };
+window.deleteItem = function(...args) { _origDeleteItem(...args); scheduleSave(); };
+
+// Init indicateur au chargement
+document.addEventListener('DOMContentLoaded', injectSaveIndicator);
+// Si le dashboard est déjà visible (chargement JSON existant)
+window.addEventListener('load', injectSaveIndicator);
+</script>
+
+<!-- ── BOUTON RETOUR HUB ── -->
+<a id="aji-hub-back" href="https://greglp35.github.io/aji-hub/" title="Retour au Hub AJI">
+  <span class="hub-arrow">←</span><span class="hub-logo">AJI</span> HUB
+</a>
+<style>
+  #aji-hub-back {
+    position: fixed; bottom: 20px; right: 20px; z-index: 9999;
+    display: flex; align-items: center; gap: 7px;
+    padding: 8px 14px;
+    background: #111316; border: 1px solid #2f333d; border-radius: 6px;
+    color: #dde1ee; text-decoration: none;
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px;
+    font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase;
+    box-shadow: 0 4px 16px rgba(0,0,0,.5);
+    transition: border-color .15s, color .15s, transform .12s;
+    user-select: none;
+  }
+  #aji-hub-back:hover { border-color: #f5d10d; color: #f5d10d; transform: translateY(-1px); }
+  #aji-hub-back .hub-logo {
+    background: #f5d10d; color: #000;
+    font-size: 10px; font-weight: 800;
+    padding: 2px 5px; border-radius: 3px; letter-spacing: .5px; line-height: 1;
+  }
+</style>
+</body>
+</html>

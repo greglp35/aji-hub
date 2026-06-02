@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AJI HUB — Matériaux</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500&display=swap');
+
+:root {
+  --bg:       #0b0c0e;
+  --s1:       #111316;
+  --s2:       #181a1f;
+  --s3:       #1f2128;
+  --border:   #25282f;
+  --border2:  #2f333d;
+  --text:     #dde1ee;
+  --text2:    #7b8099;
+  --text3:    #42475a;
+
+  --y:        #f5d10d;
+  --y2:       #c4a80a;
+  --yd:       rgba(245,209,13,.13);
+  --yg:       rgba(245,209,13,.05);
+
+  --red:      #e84040;
+  --redd:     rgba(232,64,64,.13);
+  --grn:      #3dd68c;
+  --grnd:     rgba(61,214,140,.10);
+  --blu:      #4d9de0;
+  --blud:     rgba(77,157,224,.10);
+  --orn:      #f0893a;
+  --ornd:     rgba(240,137,58,.10);
+  --pur:      #a78bfa;
+  --purd:     rgba(167,139,250,.10);
+  --pnk:      #f472b6;
+  --pnkd:     rgba(244,114,182,.10);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Barlow',sans-serif;
+  font-size:14px;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ── NOISE OVERLAY ── */
+body::after{
+  content:'';
+  position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:999;opacity:.3;
+}
+
+/* ── TOP BAR ── */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;height:54px;
+  background:var(--s1);
+  border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:100;
+}
+
+.brand{display:flex;align-items:center;gap:0}
+.brand-block{
+  background:var(--y);
+  padding:6px 10px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:800;font-size:18px;
+  color:#000;letter-spacing:1px;
+  line-height:1;
+}
+.brand-hub{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:700;font-size:18px;
+  color:var(--text);
+  padding:6px 10px;
+  letter-spacing:2px;
+}
+
+.topbar-right{display:flex;align-items:center;gap:10px}
+
+.search-wrap{position:relative}
+.search-input{
+  background:var(--s2);
+  border:1px solid var(--border2);
+  border-radius:5px;
+  padding:6px 12px 6px 32px;
+  color:var(--text);
+  font-family:'Barlow',sans-serif;
+  font-size:13px;
+  width:200px;
+  outline:none;
+  transition:border-color .15s,width .2s;
+}
+.search-input:focus{border-color:var(--y2);width:260px}
+.search-input::placeholder{color:var(--text3)}
+.search-icon{
+  position:absolute;left:10px;top:50%;transform:translateY(-50%);
+  color:var(--text3);font-size:13px;pointer-events:none;
+}
+
+.btn-add-app{
+  display:flex;align-items:center;gap:6px;
+  padding:7px 16px;
+  background:var(--y);
+  border:none;border-radius:5px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:700;font-size:13px;
+  color:#000;letter-spacing:0.5px;
+  cursor:pointer;transition:opacity .15s;
+  white-space:nowrap;
+}
+.btn-add-app:hover{opacity:.85}
+
+.count-badge{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:12px;color:var(--text3);
+  padding:4px 10px;
+  background:var(--s2);
+  border:1px solid var(--border);
+  border-radius:20px;
+  letter-spacing:.5px;
+}
+
+/* ── CATS FILTER BAR ── */
+.catbar{
+  display:flex;align-items:center;gap:6px;
+  padding:10px 24px;
+  background:var(--s1);
+  border-bottom:1px solid var(--border);
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.catbar::-webkit-scrollbar{display:none}
+
+.cat-btn{
+  flex-shrink:0;
+  padding:5px 14px;
+  border-radius:4px;
+  border:1px solid var(--border2);
+  background:none;
+  color:var(--text2);
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:600;font-size:12px;
+  letter-spacing:.5px;
+  cursor:pointer;
+  transition:all .15s;
+  white-space:nowrap;
+}
+.cat-btn:hover{border-color:var(--y2);color:var(--y)}
+.cat-btn.active{background:var(--yd);border-color:var(--y2);color:var(--y)}
+
+/* ── MAIN ── */
+.main{
+  max-width:1440px;
+  margin:0 auto;
+  padding:20px 24px 60px;
+}
+
+/* ── SECTION HEADER ── */
+.section-label{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:700;font-size:11px;
+  letter-spacing:2px;color:var(--text3);
+  text-transform:uppercase;
+  margin:24px 0 10px;
+  display:flex;align-items:center;gap:8px;
+}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── GRID ── */
+.app-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:12px;
+}
+
+/* ── APP CARD ── */
+.app-card{
+  background:var(--s1);
+  border:1px solid var(--border);
+  border-radius:8px;
+  overflow:hidden;
+  cursor:pointer;
+  transition:border-color .15s,transform .12s,box-shadow .15s;
+  position:relative;
+  display:flex;flex-direction:column;
+}
+.app-card:hover{
+  border-color:var(--border2);
+  transform:translateY(-2px);
+  box-shadow:0 8px 24px rgba(0,0,0,.4);
+}
+.app-card.disabled{opacity:.45;cursor:not-allowed}
+.app-card.disabled:hover{transform:none;box-shadow:none}
+
+/* Accent strip top */
+.app-card::before{
+  content:'';
+  display:block;height:2px;
+  background:var(--card-color,var(--y));
+  opacity:.6;
+}
+
+.card-body{padding:14px 16px 12px;flex:1}
+
+.card-top{
+  display:flex;align-items:flex-start;
+  justify-content:space-between;
+  gap:8px;margin-bottom:8px;
+}
+
+.card-icon{
+  width:36px;height:36px;
+  border-radius:7px;
+  background:var(--card-color-dim,var(--yd));
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;flex-shrink:0;
+}
+
+.card-badges{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+
+.badge{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:10px;font-weight:600;
+  padding:2px 7px;border-radius:3px;
+  letter-spacing:.3px;
+  text-transform:uppercase;
+}
+.badge-actif  {background:var(--grnd);color:var(--grn);border:1px solid rgba(61,214,140,.2)}
+.badge-beta   {background:var(--ornd);color:var(--orn);border:1px solid rgba(240,137,58,.2)}
+.badge-wip    {background:var(--redd);color:var(--red);border:1px solid rgba(232,64,64,.2)}
+.badge-archive{background:var(--s3);color:var(--text3);border:1px solid var(--border)}
+
+.card-name{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:700;font-size:17px;
+  letter-spacing:.3px;
+  color:var(--text);
+  line-height:1.2;
+  margin-bottom:4px;
+}
+
+.card-desc{
+  font-size:12px;color:var(--text2);
+  line-height:1.5;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+
+.card-footer{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 16px;
+  border-top:1px solid var(--border);
+  background:rgba(0,0,0,.15);
+}
+
+.card-cat{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:11px;font-weight:600;
+  color:var(--text3);letter-spacing:.5px;text-transform:uppercase;
+}
+
+.card-actions{display:flex;gap:4px}
+
+.btn-icon{
+  width:26px;height:26px;
+  border:1px solid var(--border2);
+  border-radius:4px;
+  background:none;
+  color:var(--text3);
+  font-size:12px;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .12s;
+}
+.btn-icon:hover{border-color:var(--y2);color:var(--y)}
+.btn-icon.del:hover{border-color:var(--red);color:var(--red)}
+
+/* ── EMPTY STATE ── */
+.empty-state{
+  grid-column:1/-1;
+  padding:60px 20px;
+  text-align:center;
+  color:var(--text3);
+}
+.empty-icon{font-size:40px;margin-bottom:12px;opacity:.4}
+.empty-title{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:700;font-size:16px;letter-spacing:1px;
+  color:var(--text2);margin-bottom:6px;
+}
+.empty-sub{font-size:12px}
+
+/* ── MODAL ── */
+.modal-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.7);
+  z-index:200;
+  align-items:center;justify-content:center;
+  backdrop-filter:blur(4px);
+}
+.modal-overlay.open{display:flex}
+
+.modal{
+  background:var(--s1);
+  border:1px solid var(--border2);
+  border-radius:10px;
+  width:100%;max-width:520px;
+  margin:16px;
+  overflow:hidden;
+  animation:modal-in .15s ease;
+}
+@keyframes modal-in{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+
+.modal-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px;
+  border-bottom:1px solid var(--border);
+}
+.modal-title{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:700;font-size:16px;letter-spacing:1px;
+}
+.modal-close{
+  width:28px;height:28px;
+  border:1px solid var(--border2);border-radius:4px;
+  background:none;color:var(--text2);
+  font-size:14px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .12s;
+}
+.modal-close:hover{border-color:var(--red);color:var(--red)}
+
+.modal-body{padding:20px}
+
+.form-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-bottom:12px;
+}
+.form-row.full{grid-template-columns:1fr}
+
+.fld{display:flex;flex-direction:column;gap:5px}
+.flabel{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:11px;font-weight:600;
+  color:var(--text3);letter-spacing:.5px;text-transform:uppercase;
+}
+.finput,.fselect,.ftextarea{
+  background:var(--bg);
+  border:1px solid var(--border2);
+  border-radius:4px;
+  padding:8px 10px;
+  color:var(--text);
+  font-family:'Barlow',sans-serif;
+  font-size:13px;
+  outline:none;
+  transition:border-color .15s;
+}
+.finput:focus,.fselect:focus,.ftextarea:focus{border-color:var(--y2)}
+.fselect option{background:var(--s2)}
+.ftextarea{resize:vertical;min-height:60px}
+
+/* Emoji picker inline */
+.emoji-grid{
+  display:flex;flex-wrap:wrap;gap:4px;
+  margin-top:6px;
+}
+.emoji-opt{
+  width:30px;height:30px;
+  border:1px solid var(--border);
+  border-radius:4px;
+  background:var(--s2);
+  font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .1s;
+}
+.emoji-opt:hover{border-color:var(--y2);background:var(--yd)}
+.emoji-opt.selected{border-color:var(--y2);background:var(--yd)}
+
+.modal-footer{
+  display:flex;gap:8px;justify-content:flex-end;
+  padding:14px 20px;
+  border-top:1px solid var(--border);
+}
+
+.btn-save{
+  padding:8px 22px;
+  background:var(--y);
+  border:none;border-radius:4px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:700;font-size:13px;letter-spacing:.5px;
+  color:#000;cursor:pointer;transition:opacity .15s;
+}
+.btn-save:hover{opacity:.85}
+
+.btn-cancel{
+  padding:8px 16px;
+  background:none;
+  border:1px solid var(--border2);
+  border-radius:4px;
+  color:var(--text2);
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:13px;letter-spacing:.5px;
+  cursor:pointer;transition:all .15s;
+}
+.btn-cancel:hover{border-color:var(--border2);color:var(--text)}
+
+/* ── TOAST ── */
+#toast{
+  position:fixed;bottom:24px;right:24px;
+  padding:10px 18px;
+  background:var(--s2);
+  border:1px solid var(--border2);
+  border-radius:6px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:13px;letter-spacing:.3px;
+  color:var(--grn);
+  transform:translateY(20px);opacity:0;
+  transition:all .2s;
+  z-index:500;pointer-events:none;
+}
+#toast.show{transform:translateY(0);opacity:1}
+
+/* ── RESPONSIVE ── */
+@media(max-width:640px){
+  .topbar{padding:0 12px}
+  .main{padding:12px 12px 40px}
+  .search-input{width:140px}
+  .search-input:focus{width:160px}
+  .brand-hub{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-block">AJI</div>
+    <div class="brand-hub">HUB</div>
+  </div>
+  <div class="topbar-right">
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input class="search-input" id="searchInput" placeholder="Rechercher une appli…" oninput="filterApps()">
+    </div>
+    <span class="count-badge" id="countBadge">0 appli</span>
+    <button class="btn-add-app" onclick="openModal()">＋ AJOUTER</button>
+  </div>
+</div>
+
+<!-- CATEGORY BAR -->
+<div class="catbar" id="catbar">
+  <button class="cat-btn active" onclick="setcat('all')">TOUT</button>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="main">
+  <div class="app-grid" id="appGrid"></div>
+</div>
+
+<!-- MODAL AJOUT / ÉDITION -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">NOUVELLE APPLI</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row full">
+        <div class="fld">
+          <label class="flabel">Nom de l'appli *</label>
+          <input class="finput" id="f-name" placeholder="Ex : Cockpit Agence">
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="fld">
+          <label class="flabel">Description</label>
+          <textarea class="ftextarea" id="f-desc" placeholder="À quoi ça sert…" rows="2"></textarea>
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="fld">
+          <label class="flabel">Fichier HTML <span style="color:var(--grn);font-size:10px;">— glisser ici pour injection auto du bouton retour</span></label>
+          <div id="file-drop-zone" onclick="document.getElementById('f-file').click()"
+            style="border:1px dashed var(--border2);border-radius:4px;padding:10px 14px;cursor:pointer;transition:border-color .15s;display:flex;align-items:center;gap:10px;">
+            <span style="font-size:18px;">📂</span>
+            <span id="file-drop-label" style="font-size:12px;color:var(--text3);">Glisser le fichier .html ou cliquer pour parcourir</span>
+          </div>
+          <input type="file" id="f-file" accept=".html,.htm" style="display:none" onchange="onFileSelected(event)">
+          <input class="finput" id="f-url" placeholder="Ou saisir le chemin manuellement : ./mon-appli.html" style="margin-top:6px;">
+          <div id="inject-status" style="display:none;margin-top:6px;">
+            <span id="inject-msg" style="font-family:'Barlow Condensed',monospace;font-size:11px;letter-spacing:.3px;"></span>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="fld">
+          <label class="flabel">Catégorie</label>
+          <select class="fselect" id="f-cat">
+            <option value="Commercial">Commercial</option>
+            <option value="Logistique">Logistique</option>
+            <option value="Stock">Stock</option>
+            <option value="Catalogue">Catalogue</option>
+            <option value="RH">RH</option>
+            <option value="Outils">Outils</option>
+            <option value="Autre">Autre</option>
+          </select>
+        </div>
+      <div class="form-row">
+        <div class="fld">
+          <label class="flabel">Statut</label>
+          <select class="fselect" id="f-statut">
+            <option value="actif">Actif</option>
+            <option value="beta">Bêta</option>
+            <option value="wip">En cours (WIP)</option>
+            <option value="archive">Archivé</option>
+          </select>
+        </div>
+        <div class="fld">
+          <label class="flabel">Couleur accent</label>
+          <select class="fselect" id="f-color">
+            <option value="jaune">Jaune AJI</option>
+            <option value="vert">Vert</option>
+            <option value="bleu">Bleu</option>
+            <option value="rouge">Rouge</option>
+            <option value="orange">Orange</option>
+            <option value="violet">Violet</option>
+            <option value="rose">Rose</option>
+          </select>
+        </div>
+      </div>
+      <div class="fld" style="margin-top:4px">
+        <label class="flabel">Icône</label>
+        <div class="emoji-grid" id="emojiGrid"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">Annuler</button>
+      <button id="btn-download-injected" class="btn-cancel" onclick="downloadInjected()" style="display:none;border-color:var(--y2);color:var(--y);">⬇ TÉLÉCHARGER FICHIER PATCHÉ</button>
+      <button class="btn-save" onclick="saveApp()">ENREGISTRER</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════
+//  INJECTION BOUTON RETOUR HUB
+// ═══════════════════════════════════════
+const HUB_BACK_SNIPPET = `
+<!-- ── BOUTON RETOUR HUB ── -->
+<a id="aji-hub-back" href="https://greglp35.github.io/aji-hub/" title="Retour au Hub AJI">
+  <span class="hub-arrow">←</span><span class="hub-logo">AJI</span> HUB
+</a>
+<style>
+  #aji-hub-back {
+    position:fixed;bottom:20px;right:20px;z-index:9999;
+    display:flex;align-items:center;gap:7px;
+    padding:8px 14px;
+    background:#111316;border:1px solid #2f333d;border-radius:6px;
+    color:#dde1ee;text-decoration:none;
+    font-family:'IBM Plex Mono',monospace;font-size:12px;
+    font-weight:700;letter-spacing:.8px;text-transform:uppercase;
+    box-shadow:0 4px 16px rgba(0,0,0,.5);
+    transition:border-color .15s,color .15s,transform .12s;
+    user-select:none;
+  }
+  #aji-hub-back:hover{border-color:#f5d10d;color:#f5d10d;transform:translateY(-1px)}
+  #aji-hub-back .hub-logo{
+    background:#f5d10d;color:#000;
+    font-size:10px;font-weight:800;
+    padding:2px 5px;border-radius:3px;letter-spacing:.5px;line-height:1;
+  }
+</style>`;
+
+let injectedFileName = '';
+let injectedContent  = '';
+
+function onFileSelected(evt) {
+  const file = evt.target.files[0];
+  if (file) processHTMLFile(file);
+}
+
+function processHTMLFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    let html = e.target.result;
+    injectedFileName = file.name;
+
+    // Auto-remplir le nom si vide
+    if (!document.getElementById('f-name').value.trim()) {
+      const m = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+      if (m) document.getElementById('f-name').value = m[1].trim();
+      else document.getElementById('f-name').value = file.name.replace(/\.html?$/i,'');
+    }
+
+    // Auto-remplir l'URL
+    if (!document.getElementById('f-url').value.trim()) {
+      document.getElementById('f-url').value = './' + file.name;
+    }
+
+    // Vérifier si déjà injecté
+    const alreadyHas = html.includes('id="aji-hub-back"');
+    if (alreadyHas) {
+      showInjectStatus('✓ Bouton retour déjà présent dans ce fichier', 'var(--grn)');
+      injectedContent = html;
+    } else {
+      // Injecter avant </body>
+      injectedContent = html.replace(/<\/body>/i, HUB_BACK_SNIPPET + '\n</body>');
+      showInjectStatus('⬇ Bouton retour injecté — cliquer sur ENREGISTRER pour télécharger le fichier', 'var(--y)');
+    }
+
+    // Feedback visuel zone drop
+    document.getElementById('file-drop-label').textContent = '✓ ' + file.name;
+    document.getElementById('file-drop-label').style.color = 'var(--grn)';
+    document.getElementById('file-drop-zone').style.borderColor = 'var(--grn)';
+  };
+  reader.readAsText(file);
+}
+
+function showInjectStatus(msg, color) {
+  const el = document.getElementById('inject-status');
+  const msg_el = document.getElementById('inject-msg');
+  el.style.display = 'block';
+  msg_el.style.color = color;
+  msg_el.textContent = msg;
+  // Afficher bouton téléchargement si injection faite
+  const btnDl = document.getElementById('btn-download-injected');
+  if (btnDl) btnDl.style.display = injectedContent ? 'inline-flex' : 'none';
+}
+
+function downloadInjected() {
+  if (!injectedContent || !injectedFileName) return;
+  const blob = new Blob([injectedContent], { type: 'text/html' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = injectedFileName;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('Fichier téléchargé — remplace l\'original dans ton dossier ✓');
+}
+
+// Drag & drop sur la zone
+document.addEventListener('DOMContentLoaded', () => {
+  const zone = document.getElementById('file-drop-zone');
+  if (!zone) return;
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.style.borderColor = 'var(--y2)'; });
+  zone.addEventListener('dragleave', () => { zone.style.borderColor = ''; });
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.style.borderColor = '';
+    const f = e.dataTransfer.files[0];
+    if (f && /\.html?$/i.test(f.name)) processHTMLFile(f);
+    else toast('Fichier .html uniquement', 'warn');
+  });
+});
+
+// ═══════════════════════════════════════
+//  CONSTANTS
+// ═══════════════════════════════════════
+const LS_KEY = 'aji_hub_apps';
+
+const EMOJIS = ['📊','📋','🚚','⚠️','🏗️','🔧','📦','💰','👷','📣','🗂️','🖨️','📐','🔑','🏠','🛒','📈','📉','🗓️','⚡','🔍','📝','🎯','💡','🧱','🪟','🚪','🪣','🔩','🏭'];
+
+const COLORS = {
+  jaune:  { css:'var(--y)',  dim:'var(--yd)' },
+  vert:   { css:'var(--grn)',dim:'var(--grnd)' },
+  bleu:   { css:'var(--blu)',dim:'var(--blud)' },
+  rouge:  { css:'var(--red)',dim:'var(--redd)' },
+  orange: { css:'var(--orn)',dim:'var(--ornd)' },
+  violet: { css:'var(--pur)',dim:'var(--purd)' },
+  rose:   { css:'var(--pnk)',dim:'var(--pnkd)' },
+};
+
+// Apps par défaut au premier lancement
+const DEFAULT_APPS = [
+  { id:1, name:'Cockpit Agence', desc:'Dashboard journalier — brief, actions commerciales, alertes stock, livraisons', url:'https://greglp35.github.io/aji-hub/cockpit-agence.html', cat:'Outils', statut:'actif', icon:'📊', color:'jaune' },
+];
+
+// ═══════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════
+let apps = [];
+let filterCat = 'all';
+let filterSearch = '';
+let editId = null;
+let selectedEmoji = '📊';
+
+// ═══════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════
+(function init() {
+  const saved = localStorage.getItem(LS_KEY);
+  if (saved) {
+    try { apps = JSON.parse(saved); } catch(e) { apps = [...DEFAULT_APPS]; }
+  } else {
+    apps = [...DEFAULT_APPS];
+    save();
+  }
+  buildEmojiGrid();
+  render();
+})();
+
+function save() {
+  localStorage.setItem(LS_KEY, JSON.stringify(apps));
+}
+
+// ═══════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════
+function render() {
+  rebuildCatBar();
+  renderGrid();
+  document.getElementById('countBadge').textContent = apps.length + (apps.length > 1 ? ' applis' : ' appli');
+}
+
+function rebuildCatBar() {
+  const cats = ['all', ...new Set(apps.map(a => a.cat))];
+  const bar = document.getElementById('catbar');
+  bar.innerHTML = cats.map(c => `
+    <button class="cat-btn${filterCat===c?' active':''}" onclick="setcat('${c}')">
+      ${c==='all' ? 'TOUT' : c.toUpperCase()}
+    </button>`).join('');
+}
+
+function renderGrid() {
+  const grid = document.getElementById('appGrid');
+  let filtered = apps.filter(a => {
+    if (filterCat !== 'all' && a.cat !== filterCat) return false;
+    if (filterSearch) {
+      const q = filterSearch.toLowerCase();
+      return a.name.toLowerCase().includes(q) || (a.desc||'').toLowerCase().includes(q) || a.cat.toLowerCase().includes(q);
+    }
+    return true;
+  });
+
+  if (!filtered.length) {
+    grid.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <div class="empty-title">Aucune appli trouvée</div>
+        <div class="empty-sub">Essayez un autre filtre ou ajoutez une nouvelle appli</div>
+      </div>`;
+    return;
+  }
+
+  // Grouper par catégorie
+  const bycat = {};
+  filtered.forEach(a => { (bycat[a.cat] = bycat[a.cat]||[]).push(a); });
+
+  let html = '';
+  if (filterCat === 'all') {
+    Object.entries(bycat).forEach(([cat, list]) => {
+      html += `<div class="section-label" style="grid-column:1/-1">${cat}</div>`;
+      html += list.map(a => cardHTML(a)).join('');
+    });
+  } else {
+    html = filtered.map(a => cardHTML(a)).join('');
+  }
+  grid.innerHTML = html;
+}
+
+function cardHTML(a) {
+  const col = COLORS[a.color||'jaune'];
+  const disabled = a.statut === 'archive' || a.statut === 'wip';
+  return `
+  <div class="app-card${disabled?' disabled':''}"
+       style="--card-color:${col.css};--card-color-dim:${col.dim}"
+       onclick="launchApp(${a.id},event)">
+    <div class="card-body">
+      <div class="card-top">
+        <div class="card-icon">${a.icon||'📦'}</div>
+        <div class="card-badges">
+          <span class="badge badge-${a.statut}">${labelStatut(a.statut)}</span>
+        </div>
+      </div>
+      <div class="card-name">${esc(a.name)}</div>
+      ${a.desc ? `<div class="card-desc">${esc(a.desc)}</div>` : ''}
+    </div>
+    <div class="card-footer">
+      <span class="card-cat">${esc(a.cat)}</span>
+      <div class="card-actions">
+        <button class="btn-icon" onclick="editApp(${a.id},event)" title="Modifier">✎</button>
+        <button class="btn-icon del" onclick="deleteApp(${a.id},event)" title="Supprimer">✕</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════
+//  ACTIONS
+// ═══════════════════════════════════════
+function launchApp(id, e) {
+  if (e.target.closest('.btn-icon')) return;
+  const a = apps.find(x => x.id === id);
+  if (!a || !a.url) { toast('Aucun fichier configuré pour cette appli.', 'warn'); return; }
+  if (a.statut === 'archive') { toast('Appli archivée — non accessible.', 'warn'); return; }
+  window.open(a.url, '_blank');
+}
+
+function setcat(cat) {
+  filterCat = cat;
+  render();
+}
+
+function filterApps() {
+  filterSearch = document.getElementById('searchInput').value.trim();
+  renderGrid();
+}
+
+function deleteApp(id, e) {
+  e.stopPropagation();
+  if (!confirm('Supprimer cette appli du hub ?')) return;
+  apps = apps.filter(a => a.id !== id);
+  save(); render();
+  toast('Appli supprimée');
+}
+
+function editApp(id, e) {
+  e.stopPropagation();
+  const a = apps.find(x => x.id === id);
+  if (!a) return;
+  editId = id;
+  document.getElementById('modalTitle').textContent = 'MODIFIER L\'APPLI';
+  document.getElementById('f-name').value = a.name;
+  document.getElementById('f-desc').value = a.desc||'';
+  document.getElementById('f-url').value = a.url||'';
+  document.getElementById('f-cat').value = a.cat||'Outils';
+  document.getElementById('f-statut').value = a.statut||'actif';
+  document.getElementById('f-color').value = a.color||'jaune';
+  selectedEmoji = a.icon||'📊';
+  refreshEmojiGrid();
+  openModal();
+}
+
+// ═══════════════════════════════════════
+//  MODAL
+// ═══════════════════════════════════════
+function openModal(reset) {
+  if (!editId) {
+    document.getElementById('modalTitle').textContent = 'NOUVELLE APPLI';
+    document.getElementById('f-name').value = '';
+    document.getElementById('f-desc').value = '';
+    document.getElementById('f-url').value = '';
+    document.getElementById('f-cat').value = 'Outils';
+    document.getElementById('f-statut').value = 'actif';
+    document.getElementById('f-color').value = 'jaune';
+    selectedEmoji = '📊';
+    refreshEmojiGrid();
+  }
+  document.getElementById('modalOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('f-name').focus(), 100);
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  editId = null;
+  injectedFileName = '';
+  injectedContent  = '';
+  const zone = document.getElementById('file-drop-zone');
+  if (zone) { zone.style.borderColor = ''; }
+  const lbl = document.getElementById('file-drop-label');
+  if (lbl) { lbl.textContent = 'Glisser le fichier .html ou cliquer pour parcourir'; lbl.style.color = 'var(--text3)'; }
+  const st = document.getElementById('inject-status');
+  if (st) st.style.display = 'none';
+  const btnDl = document.getElementById('btn-download-injected');
+  if (btnDl) btnDl.style.display = 'none';
+  const fi = document.getElementById('f-file');
+  if (fi) fi.value = '';
+}
+
+function closeModalOutside(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+function saveApp() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { toast('Le nom est obligatoire.', 'warn'); return; }
+  const data = {
+    name,
+    desc: document.getElementById('f-desc').value.trim(),
+    url:  document.getElementById('f-url').value.trim(),
+    cat:  document.getElementById('f-cat').value,
+    statut: document.getElementById('f-statut').value,
+    color: document.getElementById('f-color').value,
+    icon: selectedEmoji,
+  };
+  if (editId) {
+    const idx = apps.findIndex(a => a.id === editId);
+    if (idx > -1) apps[idx] = { ...apps[idx], ...data };
+    toast('Appli mise à jour ✓');
+  } else {
+    data.id = Date.now();
+    apps.push(data);
+    toast('Appli ajoutée ✓');
+  }
+  save(); render(); closeModal();
+}
+
+// ═══════════════════════════════════════
+//  EMOJI
+// ═══════════════════════════════════════
+function buildEmojiGrid() {
+  const grid = document.getElementById('emojiGrid');
+  grid.innerHTML = EMOJIS.map(em => `
+    <div class="emoji-opt${em===selectedEmoji?' selected':''}" onclick="pickEmoji('${em}')">${em}</div>`).join('');
+}
+
+function refreshEmojiGrid() {
+  document.querySelectorAll('.emoji-opt').forEach(el => {
+    el.classList.toggle('selected', el.textContent === selectedEmoji);
+  });
+}
+
+function pickEmoji(em) {
+  selectedEmoji = em;
+  refreshEmojiGrid();
+}
+
+// ═══════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function labelStatut(s) {
+  return {actif:'ACTIF',beta:'BÊTA',wip:'WIP',archive:'ARCHIVÉ'}[s]||s.toUpperCase();
+}
+
+let toastTimer;
+function toast(msg, type) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.color = type==='warn' ? 'var(--orn)' : 'var(--grn)';
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2400);
+}
+
+// Keyboard shortcut : Escape ferme le modal
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+</script>
+</body>
+</html>
