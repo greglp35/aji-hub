@@ -21,6 +21,7 @@ const AppState = {
   isSaved: true,
   clipboard: null,
   history: [],
+  resizeHandle: null,
   historyIndex: -1,
 };
 
@@ -762,7 +763,13 @@ function handleResizeMouseDown(e, blockId) {
     AppState.resizeBlock = { ...block };
   }
   
+  // Stocker la poignée cliquée
+  AppState.resizeHandle = e.target.classList.contains('tl') ? 'tl' :
+                         e.target.classList.contains('tr') ? 'tr' :
+                         e.target.classList.contains('bl') ? 'bl' : 'br';
+  
   e.stopPropagation();
+  e.preventDefault();
   
   // Add temporary event listeners for resizing
   const handleMouseMove = (e) => {
@@ -773,25 +780,28 @@ function handleResizeMouseDown(e, blockId) {
       
       const block = getBlockById(AppState.resizeBlockId);
       if (block) {
-        // Determine which handle is being dragged
-        const handle = e.target;
-        
-        if (handle.classList.contains('tl')) {
-          block.width = Math.max(20, AppState.resizeBlock.width - dx * scale);
-          block.height = Math.max(20, AppState.resizeBlock.height - dy * scale);
-          block.x = AppState.resizeBlock.x + dx * scale;
-          block.y = AppState.resizeBlock.y + dy * scale;
-        } else if (handle.classList.contains('tr')) {
-          block.width = Math.max(20, AppState.resizeBlock.width + dx * scale);
-          block.height = Math.max(20, AppState.resizeBlock.height - dy * scale);
-          block.y = AppState.resizeBlock.y + dy * scale;
-        } else if (handle.classList.contains('bl')) {
-          block.width = Math.max(20, AppState.resizeBlock.width + dx * scale);
-          block.height = Math.max(20, AppState.resizeBlock.height + dy * scale);
-          block.x = AppState.resizeBlock.x + dx * scale;
-        } else if (handle.classList.contains('br')) {
-          block.width = Math.max(20, AppState.resizeBlock.width + dx * scale);
-          block.height = Math.max(20, AppState.resizeBlock.height + dy * scale);
+        // Utiliser la poignée stockée
+        switch (AppState.resizeHandle) {
+          case 'tl':
+            block.width = Math.max(20, AppState.resizeBlock.width - dx * scale);
+            block.height = Math.max(20, AppState.resizeBlock.height - dy * scale);
+            block.x = AppState.resizeBlock.x + dx * scale;
+            block.y = AppState.resizeBlock.y + dy * scale;
+            break;
+          case 'tr':
+            block.width = Math.max(20, AppState.resizeBlock.width + dx * scale);
+            block.height = Math.max(20, AppState.resizeBlock.height - dy * scale);
+            block.y = AppState.resizeBlock.y + dy * scale;
+            break;
+          case 'bl':
+            block.width = Math.max(20, AppState.resizeBlock.width + dx * scale);
+            block.height = Math.max(20, AppState.resizeBlock.height + dy * scale);
+            block.x = AppState.resizeBlock.x + dx * scale;
+            break;
+          case 'br':
+            block.width = Math.max(20, AppState.resizeBlock.width + dx * scale);
+            block.height = Math.max(20, AppState.resizeBlock.height + dy * scale);
+            break;
         }
         
         AppState.isSaved = false;
