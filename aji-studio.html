@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <!-- META TAGS -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="AJI Studio - Conception de catalogues produits avec gestion d'impression professionnelle">
+  <meta name="theme-color" content="#F5C400">
+
+  <!-- TITLE -->
+  <title>AJI Studio — Reconstruction V3.7.5.6.19 — Produits Excel Drag & Drop</title>
+
+  <!-- PRELOAD -->
+  <link rel="preload" href="assets/css/main.css" as="style">
+  <link rel="preload" href="assets/css/print.css" as="style" media="print">
+  <link rel="preload" href="assets/js/main.js" as="script">
+
+  <!-- STYLESHEETS -->
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="assets/css/print.css" media="print">
+
+  <!-- FAVICON -->
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+  <!-- GOOGLE FONTS -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- SKIP LINK - Accessibilité WCAG 2.4.1 -->
+  <a href="#main" class="skip-link">Aller au contenu principal</a>
+
+  <!-- APP -->
+  <div class="app">
+    <!-- HEADER -->
+    <header class="header">
+      <div class="logo" aria-hidden="true"></div>
+      <div class="title">
+        <strong>AJI Studio</strong>
+        <span>Reconstruction V3.7.5.6.19 — Produits Excel Drag & Drop</span>
+      </div>
+      <div class="header-spacer"></div>
+      <div class="header-status">
+        <span class="pill saved" id="save-status">Enregistré</span>
+      </div>
+    </header>
+
+    <!-- TOOLBAR -->
+    <nav class="toolbar" aria-label="Barre d'outils">
+      <div class="group">
+        <button class="btn small" type="button" id="btn-new">Nouveau</button>
+        <button class="btn small" type="button" id="btn-open">Ouvrir</button>
+        <button class="btn small primary" type="button" id="btn-save">Enregistrer</button>
+        <button class="btn small" type="button" id="btn-export-pdf">Export PDF</button>
+      </div>
+      <div class="group">
+        <button class="btn small" type="button" id="btn-undo">Annuler</button>
+        <button class="btn small" type="button" id="btn-redo">Rétablir</button>
+        <button class="btn small" type="button" id="btn-copy">Copier</button>
+        <button class="btn small" type="button" id="btn-paste">Coller</button>
+      </div>
+      <div class="group">
+        <button class="btn small icon" type="button" id="btn-toggle-grid" title="Afficher/Masquer la grille">📏</button>
+        <button class="btn small icon" type="button" id="btn-toggle-guides" title="Afficher/Masquer les guides">📍</button>
+        <button class="btn small icon" type="button" id="btn-toggle-bleed" title="Afficher/Masquer le fond perdu">🔲</button>
+        <button class="btn small icon" type="button" id="btn-toggle-safe" title="Afficher/Masquer la zone de sécurité">🟢</button>
+      </div>
+      <div class="group">
+        <button class="btn small icon" type="button" data-zoom="out" id="btn-zoom-out" title="Zoom arrière">-</button>
+        <input type="text" class="field compact" value="100%" id="zoom-level" readonly>
+        <button class="btn small icon" type="button" data-zoom="in" id="btn-zoom-in" title="Zoom avant">+</button>
+        <button class="btn small" type="button" id="btn-zoom-reset" title="Réinitialiser le zoom">100%</button>
+      </div>
+      <div class="group">
+        <button class="btn small" type="button" id="btn-prev-page" title="Page précédente">←</button>
+        <input type="text" class="field compact" value="1" id="page-number" readonly>
+        <button class="btn small" type="button" id="btn-next-page" title="Page suivante">→</button>
+        <button class="btn small" type="button" id="btn-add-page" title="Ajouter une page">+ Page</button>
+      </div>
+    </nav>
+
+    <!-- WORKSPACE -->
+    <main class="workspace" id="main">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <div class="panel">
+          <h2><span>Bibliothèques</span></h2>
+          <div class="panel-body">
+            <div class="tabs" role="tablist">
+              <button class="tab active" role="tab" data-tab="basic">Basique</button>
+              <button class="tab" role="tab" data-tab="catalog">Catalogue</button>
+              <button class="tab" role="tab" data-tab="advanced">Avancé</button>
+              <button class="tab" role="tab" data-tab="cover">Couverture</button>
+              <button class="tab" role="tab" data-tab="custom">Personnalisé</button>
+            </div>
+
+            <div class="tab-panel active" id="tab-basic" role="tabpanel">
+              <div class="template-grid">
+                <button class="template-btn btn" data-block-type="text" title="Ajouter un bloc de texte">📝 Texte</button>
+                <button class="template-btn btn" data-block-type="shape" title="Ajouter une forme">🟨 Forme</button>
+                <button class="template-btn btn" data-block-type="image" title="Ajouter une image">🖼️ Image</button>
+                <button class="template-btn btn" data-block-type="table" title="Ajouter un tableau">📊 Tableau</button>
+              </div>
+            </div>
+
+            <div class="tab-panel" id="tab-catalog" role="tabpanel">
+              <div class="template-grid">
+                <button class="template-btn btn" data-block-type="product" title="Ajouter un produit">📦 Produit</button>
+                <button class="template-btn btn" data-block-type="qr" title="Ajouter un QR Code">🔲 QR Code</button>
+                <button class="template-btn btn" data-block-type="service" title="Ajouter un service">🛠️ Service</button>
+                <button class="template-btn btn" data-block-type="contact" title="Ajouter un contact">📞 Contact</button>
+              </div>
+            </div>
+
+            <div class="tab-panel" id="tab-advanced" role="tabpanel">
+              <div class="template-grid">
+                <button class="template-btn btn" data-block-type="barcode" title="Ajouter un code-barres">📌 Code-barres</button>
+                <button class="template-btn btn" data-block-type="chart" title="Ajouter un graphique">📈 Graphique</button>
+              </div>
+            </div>
+
+            <div class="tab-panel" id="tab-cover" role="tabpanel">
+              <div class="template-grid">
+                <button class="template-btn btn" data-block-type="cover-image" title="Ajouter une image de couverture">🖼️ Image de couverture</button>
+                <button class="template-btn btn" data-block-type="cover-title" title="Ajouter un titre de couverture">📜 Titre de couverture</button>
+              </div>
+            </div>
+
+            <div class="tab-panel" id="tab-custom" role="tabpanel">
+              <div class="template-grid">
+                <button class="template-btn btn" data-block-type="custom" title="Ajouter un bloc personnalisé">⚙️ Personnalisé</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2><span>Calques</span></h2>
+          <div class="panel-body">
+            <div class="list">
+              <div class="list-item active" data-layer="content">
+                <strong>Contenu</strong>
+                <span>Blocs principaux</span>
+              </div>
+              <div class="list-item" data-layer="habillage">
+                <strong>Habillage</strong>
+                <span>Arrière-plans</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- CANVAS -->
+      <section class="canvas-wrap" id="canvas-wrap">
+        <div class="canvas-inner" id="canvas" tabindex="0">
+          <div class="page-frame show-grid show-guides show-bleed show-safe" id="page-1" data-page-id="1">
+            <!-- Guide Boxes -->
+            <div class="trim-box"></div>
+            <div class="guide-label trim">TRIM</div>
+            <div class="bleed-box"></div>
+            <div class="guide-label bleed">BLEED</div>
+            <div class="safe-box"></div>
+            <div class="guide-label safe">SAFE</div>
+
+            <!-- Mid Guides -->
+            <div class="mid-guide v"></div>
+            <div class="mid-guide h"></div>
+            <div class="mid-guide-label v">CENTRE V</div>
+            <div class="mid-guide-label h">CENTRE H</div>
+
+            <!-- Crop Marks -->
+            <div class="crop tl-h"></div>
+            <div class="crop tl-v"></div>
+            <div class="crop tr-h"></div>
+            <div class="crop tr-v"></div>
+            <div class="crop bl-h"></div>
+            <div class="crop bl-v"></div>
+            <div class="crop br-h"></div>
+            <div class="crop br-v"></div>
+
+            <!-- Page Badge -->
+            <div class="page-badge">Page 1</div>
+
+            <!-- Blocks Container -->
+            <div class="blocks-container" id="blocks-container"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- INSPECTOR -->
+      <aside class="inspector">
+        <div class="panel" id="selection-panel">
+          <h2><span>Sélection</span><span class="selection-count" id="selection-count">0 bloc(s)</span></h2>
+          <div class="panel-body">
+            <div class="notice" id="selection-notice">
+              <strong>Aucun bloc sélectionné</strong>
+              <span>Cliquez sur un bloc pour l'éditer</span>
+            </div>
+            <div class="list-actions">
+              <button class="btn small danger" id="btn-delete-selected">Supprimer</button>
+              <button class="btn small" id="btn-duplicate-selected">Dupliquer</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- PROPERTIES PANEL (Hidden by default) -->
+        <div class="panel hidden" id="properties-panel">
+          <h2><span>Propriétés</span></h2>
+          <div class="panel-body">
+            <div class="form-group">
+              <label for="block-type">Type de bloc</label>
+              <input type="text" id="block-type" class="field" readonly>
+            </div>
+            <div class="form-group">
+              <label for="block-x">Position X (px)</label>
+              <input type="number" id="block-x" class="field">
+            </div>
+            <div class="form-group">
+              <label for="block-y">Position Y (px)</label>
+              <input type="number" id="block-y" class="field">
+            </div>
+            <div class="form-group">
+              <label for="block-width">Largeur (px)</label>
+              <input type="number" id="block-width" class="field">
+            </div>
+            <div class="form-group">
+              <label for="block-height">Hauteur (px)</label>
+              <input type="number" id="block-height" class="field">
+            </div>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- PRINT AREA -->
+  <div class="print-area" id="print-area"></div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast">
+    <span id="toast-message"></span>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script type="module" src="assets/js/main.js"></script>
+</body>
+</html>

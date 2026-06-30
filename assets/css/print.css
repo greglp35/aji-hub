@@ -1,0 +1,194 @@
+/* ============================================
+   AJI Studio - Print Stylesheet
+   ============================================ */
+
+@media print {
+  /* Hide all non-print elements */
+  .header,
+  .toolbar,
+  .sidebar,
+  .inspector,
+  .toast,
+  .skip-link {
+    display: none !important;
+  }
+
+  /* Body and App */
+  body {
+    background: white;
+    color: black;
+    margin: 0;
+    padding: 0;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .app {
+    height: auto;
+    width: auto;
+  }
+
+  /* Workspace */
+  .workspace {
+    display: block;
+    height: auto;
+    width: auto;
+    overflow: visible;
+  }
+
+  /* Canvas */
+  .canvas-wrap {
+    overflow: visible;
+    background: transparent;
+    margin: 0;
+    padding: 0;
+  }
+
+  .canvas-inner {
+    transform: none !important;
+    width: auto;
+    height: auto;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  /* Page Frame */
+  .page-frame {
+    position: relative;
+    width: 210mm;
+    height: 297mm;
+    margin: 0;
+    box-shadow: none;
+    background: white;
+    page-break-after: always;
+    page-break-inside: avoid;
+  }
+
+  .page-frame:last-child {
+    page-break-after: avoid;
+  }
+
+  /* Hide guides and crop marks */
+  .trim-box,
+  .bleed-box,
+  .safe-box,
+  .mid-guide,
+  .mid-guide-label,
+  .crop,
+  .guide-label,
+  .page-badge {
+    display: none !important;
+  }
+
+  /* Blocks */
+  .blocks-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .block {
+    position: absolute;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    cursor: default;
+    min-width: 0;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .block::after {
+    display: none !important;
+  }
+
+  .block .resize-handle {
+    display: none !important;
+  }
+
+  /* Text Blocks */
+  .block.text {
+    background: transparent !important;
+    color: black !important;
+  }
+
+  .block.text * {
+    color: black !important;
+    background: transparent !important;
+  }
+
+  /* Image Blocks */
+  .block.image img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+
+  /* Product Blocks */
+  .block.product {
+    background: transparent !important;
+    border: none !important;
+  }
+
+  /* QR Code Blocks */
+  .block.qr {
+    background: white !important;
+    border: none !important;
+  }
+
+  .block.qr img {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  /* Table Blocks */
+  .block.table table {
+    width: 100%;
+    border-collapse: collapse;
+    color: black;
+  }
+
+  .block.table th,
+  .block.table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
+
+  .block.table th {
+    background: #f2f2f2;
+  }
+
+  /* Shape Blocks */
+  .block.shape {
+    background: transparent !important;
+    border: 1px solid black !important;
+  }
+
+  /* Print Area */
+  .print-area {
+    position: static;
+    width: auto;
+    height: auto;
+    background: transparent;
+    z-index: auto;
+    opacity: 1;
+  }
+}
+
+/* ============================================
+   High Resolution Printing
+   ============================================ */
+@page {
+  size: A4;
+  margin: 0;
+}
+
+/* Ensure no extra margins */
+@media print {
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
