@@ -1,0 +1,6 @@
+{
+  "name": "aji-collab-cloud",
+  "private": true,
+  "version": "2.2.0-cloud.1",
+  "description": "AJI Collab — intégration Vercel + Airtable + GitHub"
+}
