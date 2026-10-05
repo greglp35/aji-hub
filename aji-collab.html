@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AJI Collab — chargement sécurisé</title>
+  <style>body{font-family:system-ui,sans-serif;background:#111827;color:#f9fafb;display:grid;place-items:center;min-height:100vh;margin:0}.box{max-width:680px;padding:32px}.muted{color:#9ca3af}pre{white-space:pre-wrap;color:#fecaca}</style>
+</head>
+<body>
+  <div class="box"><h1>AJI Collab</h1><p id="status" class="muted">Chargement de l’application…</p><pre id="error"></pre></div>
+  <script>
+  (async()=>{
+    const status=document.getElementById('status'), error=document.getElementById('error');
+    try{
+      if(typeof DecompressionStream!=='function') throw new Error('Navigateur incompatible : décompression gzip indisponible.');
+      const r=await fetch('./aji-collab.bundle.b64',{cache:'no-store'});
+      if(!r.ok) throw new Error('Bundle indisponible (HTTP '+r.status+').');
+      const b64=(await r.text()).trim();
+      const raw=atob(b64), bytes=new Uint8Array(raw.length); for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);
+      const html=await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
+      if(!html.includes('aji-collab-v2/2.2.0')) throw new Error('Bundle AJI Collab invalide ou inattendu.');
+      document.open(); document.write(html); document.close();
+    }catch(e){status.textContent='Chargement impossible.';error.textContent=String(e&&e.message||e)}
+  })();
+  </script>
+</body>
+</html>
