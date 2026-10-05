@@ -1,0 +1,29 @@
+const crypto=require('crypto');
+const {config,listAll,findOne,createRecords,updateRecord,getSetting}=require('./airtable');
+const COOKIE='aji_collab_session';
+const ITERATIONS=210000;
+
+function jsonBody(req){if(!req.body)return {};if(typeof req.body==='object')return req.body;try{return JSON.parse(req.body)}catch{return {}}}
+function b64url(input){return Buffer.from(input).toString('base64url')}
+function signPayload(payload){const secret=process.env.SESSION_SECRET;if(!secret)throw new Error('Configuration serveur manquante: SESSION_SECRET');const body=b64url(JSON.stringify(payload));const sig=crypto.createHmac('sha256',secret).update(body).digest('base64url');return `${body}.${sig}`}
+function verifyToken(token){try{const secret=process.env.SESSION_SECRET;if(!secret)return null;const [body,sig]=String(token||'').split('.');if(!body||!sig)return null;const expected=crypto.createHmac('sha256',secret).update(body).digest();const got=Buffer.from(sig,'base64url');if(got.length!==expected.length||!crypto.timingSafeEqual(got,expected))return null;const payload=JSON.parse(Buffer.from(body,'base64url').toString('utf8'));if(!payload.uid||!payload.exp||Date.now()>payload.exp)return null;return payload}catch{return null}}
+function parseCookies(req){const out={};for(const part of String(req.headers.cookie||'').split(';')){const i=part.indexOf('=');if(i>0)out[part.slice(0,i).trim()]=decodeURIComponent(part.slice(i+1).trim())}return out}
+function setSessionCookie(res,userId,minutes=480){const token=signPayload({uid:userId,exp:Date.now()+minutes*60000});res.setHeader('Set-Cookie',`${COOKIE}=${encodeURIComponent(token)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${minutes*60}`)}
+function clearSessionCookie(res){res.setHeader('Set-Cookie',`${COOKIE}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`)}
+function hashPassword(password,salt=crypto.randomBytes(16).toString('base64')){if(String(password).length<10)throw new Error('Le mot de passe doit contenir au moins 10 caractères.');const hash=crypto.pbkdf2Sync(String(password),Buffer.from(salt,'base64'),ITERATIONS,32,'sha256').toString('base64');return {salt,hash,iterations:ITERATIONS}}
+function verifyPassword(password,user){try{const actual=crypto.pbkdf2Sync(String(password),Buffer.from(user.passwordSalt,'base64'),Number(user.passwordIterations||ITERATIONS),32,'sha256');const expected=Buffer.from(user.passwordHash,'base64');return actual.length===expected.length&&crypto.timingSafeEqual(actual,expected)}catch{return false}}
+function roleAllows(role,permission){if(!role)return false;const p=role.permissions||[];if(p.includes('*')||p.includes(permission))return true;const [module,action]=String(permission||'').split('.');return action!=='admin'&&p.includes(`${module}.admin`)}
+function mapRole(row){let permissions=[];try{permissions=JSON.parse(row.fields?.['Permissions JSON']||'[]')}catch{}return {recordId:row.id,id:String(row.fields?.['Role ID']||''),name:String(row.fields?.Name||''),system:Boolean(row.fields?.System),permissions:Array.isArray(permissions)?permissions:[]}}
+function mapUser(row){return {recordId:row.id,id:String(row.fields?.['User ID']||''),username:String(row.fields?.Username||''),displayName:String(row.fields?.['Display Name']||''),roleId:String(row.fields?.['Role ID']||''),active:Boolean(row.fields?.Active),passwordSalt:String(row.fields?.['Password Salt']||''),passwordHash:String(row.fields?.['Password Hash']||''),passwordIterations:Number(row.fields?.['Password Iterations']||ITERATIONS),lastLoginAt:String(row.fields?.['Last Login At']||'')}}
+async function roles(){const c=config();return (await listAll(c.roles)).map(mapRole)}
+async function users(){const c=config();return (await listAll(c.users)).map(mapUser)}
+async function getUserById(id){const c=config(),row=await findOne(c.users,'User ID',id);return row?mapUser(row):null}
+async function getUserByUsername(username){const c=config(),rows=await listAll(c.users);const n=String(username||'').trim().toLocaleLowerCase('fr');const row=rows.find(r=>String(r.fields?.Username||'').trim().toLocaleLowerCase('fr')===n);return row?mapUser(row):null}
+async function getRoleById(id){const c=config(),row=await findOne(c.roles,'Role ID',id);return row?mapRole(row):null}
+async function sessionMinutes(){const s=await getSetting('security.sessionMinutes');const n=Number(s?.value||480);return Number.isInteger(n)&&n>=5&&n<=1440?n:480}
+async function catalog(){const s=await getSetting('security.catalog');try{const v=JSON.parse(s?.value||'[]');return Array.isArray(v)?v:[]}catch{return []}}
+async function getAuth(req){const token=parseCookies(req)[COOKIE],payload=verifyToken(token);if(!payload)return null;const user=await getUserById(payload.uid);if(!user||!user.active)return null;const role=await getRoleById(user.roleId);if(!role)return null;return {user,role,payload}}
+async function requireAuth(req,res,permission){const auth=await getAuth(req);if(!auth){res.status(401).json({ok:false,error:'AUTH_REQUIRED'});return null}if(permission&&!roleAllows(auth.role,permission)){res.status(403).json({ok:false,error:'FORBIDDEN',permission});return null}return auth}
+async function audit(type,detail,userId=''){try{const c=config();await createRecords(c.audit,[{'Event ID':crypto.randomUUID(),'At':new Date().toISOString(),'User ID':userId,'Type':type,'Detail':String(detail||'')}])}catch(e){console.warn('Audit Airtable impossible',e.message)}}
+function publicUser(user){return {id:user.id,username:user.username,displayName:user.displayName,roleId:user.roleId,active:user.active,lastLoginAt:user.lastLoginAt}}
+module.exports={jsonBody,setSessionCookie,clearSessionCookie,hashPassword,verifyPassword,roleAllows,mapRole,mapUser,roles,users,getUserById,getUserByUsername,getRoleById,sessionMinutes,catalog,getAuth,requireAuth,audit,publicUser};
