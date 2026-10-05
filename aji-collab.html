@@ -17,7 +17,9 @@
       if(!r.ok) throw new Error('Bundle indisponible (HTTP '+r.status+').');
       const html=await new Response(r.body.pipeThrough(new DecompressionStream('gzip'))).text();
       if(!html.includes('aji-collab-v2/2.2.0')) throw new Error('Bundle AJI Collab invalide ou inattendu.');
-      document.open(); document.write(html); document.close();
+      const quotaTag='<script src="./quota-repair.js?v=quota-r1"><'+'/script>';
+      const patched=html.includes('</body>')?html.replace('</body>',quotaTag+'</body>'):html+quotaTag;
+      document.open(); document.write(patched); document.close();
     }catch(e){status.textContent='Chargement impossible.';error.textContent=String(e&&e.message||e)}
   })();
   </script>
