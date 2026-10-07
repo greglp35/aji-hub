@@ -17,6 +17,9 @@ zip_path.write_bytes(base64.b64decode(data))
 sys.path.insert(0, str(zip_path))
 
 from app.main import app
+from app.auth import hash_password
+from app.db import SessionLocal
+from app.models import User, UserAgency
 
 @app.get("/__e2e__/idempotency")
 async def e2e_idempotency(token: str = Query(...)):
@@ -24,10 +27,30 @@ async def e2e_idempotency(token: str = Query(...)):
     if not expected or not hmac.compare_digest(token, expected):
         raise HTTPException(status_code=404, detail="Not found")
 
-    user = os.getenv("AJI_BOOTSTRAP_ADMIN_USER", "")
     password = os.getenv("AJI_BOOTSTRAP_ADMIN_PASSWORD", "")
-    if not user or not password:
+    if not password:
         raise HTTPException(status_code=500, detail="E2E credentials missing")
+
+    # Fixture de test isolée : le rôle MANAGER porte les permissions métier du parcours.
+    user = "manager-v411-e2e"
+    db = SessionLocal()
+    try:
+        existing = db.get(User, "u-e2e-manager")
+        if not existing:
+            manager = User(
+                id="u-e2e-manager",
+                username=user,
+                display_name="Manager E2E",
+                password_hash=hash_password(password),
+                role_code="MANAGER",
+                home_agency_id="ag-breal",
+                active=True,
+            )
+            manager.memberships = [UserAgency(agency_id="ag-breal")]
+            db.add(manager)
+            db.commit()
+    finally:
+        db.close()
 
     transport = httpx.ASGITransport(app=app)
     base = "http://aji-e2e.local"
