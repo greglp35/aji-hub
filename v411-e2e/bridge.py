@@ -97,7 +97,7 @@ async def e2e_idempotency(token: str = Query(...)):
         listed = await client.get("/api/v1/records/clients", params={"agency_id": "ag-breal"}, headers=headers)
         entity_count = None
         if listed.status_code == 200:
-            rows = listed.json()
+            rows = listed.json().get("records", [])
             entity_count = sum(1 for row in rows if row.get("id") == entity_id)
 
         reuse = await client.patch(
